@@ -1,7 +1,7 @@
 package at.fhtw.services.unit;
 
+import at.fhtw.services.ElasticsearchIndexServiceImp;
 import at.fhtw.services.ElasticsearchIndexService;
-import at.fhtw.services.imp.IElasticsearchIndexService;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.Result;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-class ElasticsearchIndexServiceTest {
+class ElasticsearchIndexServiceImpTest {
 
     @Mock
     private ElasticsearchClient esClient;
@@ -46,17 +46,17 @@ class ElasticsearchIndexServiceTest {
     @Captor
     private ArgumentCaptor<IndexRequest<Map<String, Object>>> requestCaptor;
 
-    private IElasticsearchIndexService indexService;
+    private ElasticsearchIndexService indexService;
 
     @BeforeEach
     void setUp() {
         Locale.setDefault(Locale.ENGLISH);
-        ElasticsearchIndexService baseService = new ElasticsearchIndexService(esClient, INDEX_NAME);
+        ElasticsearchIndexServiceImp baseService = new ElasticsearchIndexServiceImp(esClient, INDEX_NAME);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         MethodValidationInterceptor interceptor = new MethodValidationInterceptor(factory.getValidator());
         ProxyFactory proxyFactory = new ProxyFactory(baseService);
         proxyFactory.addAdvice(interceptor);
-        indexService = (IElasticsearchIndexService) proxyFactory.getProxy();
+        indexService = (ElasticsearchIndexService) proxyFactory.getProxy();
     }
 
     @Nested

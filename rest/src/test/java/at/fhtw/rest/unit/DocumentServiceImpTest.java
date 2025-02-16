@@ -1,13 +1,13 @@
 package at.fhtw.rest.unit;
 
 import at.fhtw.rest.api.DocumentRequest;
-import at.fhtw.rest.core.DocumentService;
-import at.fhtw.rest.core.imp.IElasticsearchService;
-import at.fhtw.rest.infrastructure.mapper.imp.IDocumentMapper;
-import at.fhtw.rest.message.imp.IProcessingEventDispatcher;
+import at.fhtw.rest.core.DocumentServiceImp;
+import at.fhtw.rest.core.ElasticsearchService;
+import at.fhtw.rest.infrastructure.mapper.DocumentMapper;
+import at.fhtw.rest.message.ProcessingEventDispatcher;
 import at.fhtw.rest.persistence.DocumentEntity;
-import at.fhtw.rest.persistence.imp.IDocumentRepository;
-import at.fhtw.rest.persistence.imp.IMinioStorageService;
+import at.fhtw.rest.persistence.DocumentRepository;
+import at.fhtw.rest.persistence.MinioStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-public class DocumentServiceTest {
+public class DocumentServiceImpTest {
 
     private static final String TEST_FILENAME = "testfile.pdf";
     private static final String NEW_FILENAME = "newfile.pdf";
@@ -54,21 +54,21 @@ public class DocumentServiceTest {
     private static final String SEARCH_QUERY_NON_EXISTENT = "non-existent";
 
     @Mock
-    private IDocumentRepository documentRepository;
+    private DocumentRepository documentRepository;
     @Mock
-    private IDocumentMapper mapper;
+    private DocumentMapper mapper;
     @Mock
-    private IMinioStorageService minioStorageService;
+    private MinioStorageService minioStorageService;
     @Mock
-    private IProcessingEventDispatcher processingEventDispatcher;
+    private ProcessingEventDispatcher processingEventDispatcher;
     @Mock
-    private IElasticsearchService elasticsearchService;
+    private ElasticsearchService elasticsearchService;
 
-    private DocumentService documentService;
+    private DocumentServiceImp documentServiceImp;
 
     @BeforeEach
     void setUp() {
-        documentService = new DocumentService(
+        documentServiceImp = new DocumentServiceImp(
                 documentRepository,
                 mapper,
                 minioStorageService,
@@ -97,7 +97,7 @@ public class DocumentServiceTest {
             DocumentRequest expectedDto = DocumentRequest.builder().build();
             when(mapper.toDto(any(DocumentEntity.class))).thenReturn(expectedDto);
 
-            DocumentRequest result = documentService.uploadFile(file);
+            DocumentRequest result = documentServiceImp.uploadFile(file);
             assertThat(result).isNotNull();
 
             InOrder inOrder = inOrder(minioStorageService, documentRepository, mapper, processingEventDispatcher);
@@ -117,7 +117,7 @@ public class DocumentServiceTest {
             DocumentRequest expectedDto = DocumentRequest.builder().build();
             when(mapper.toDto(entity)).thenReturn(expectedDto);
 
-            DocumentRequest result = documentService.renameFile(TEST_DOC_ID, NEW_FILENAME);
+            DocumentRequest result = documentServiceImp.renameFile(TEST_DOC_ID, NEW_FILENAME);
             assertThat(result).isNotNull();
             assertThat(entity.getFilename()).isEqualTo(NEW_FILENAME);
 
@@ -132,7 +132,7 @@ public class DocumentServiceTest {
         @DisplayName("getFileBytes - file found")
         void getFileBytesSuccessful() {
             when(minioStorageService.loadFile(TEST_DOC_ID)).thenReturn(Optional.of(TEST_FILE_BYTES));
-            byte[] result = documentService.getFileBytes(TEST_DOC_ID);
+            byte[] result = documentServiceImp.getFileBytes(TEST_DOC_ID);
             assertThat(result).isNotNull();
             assertThat(result).isEqualTo(TEST_FILE_BYTES);
         }
@@ -140,7 +140,7 @@ public class DocumentServiceTest {
         @Test
         @DisplayName("deleteDocument - successful deletion")
         void deleteDocumentSuccessful() {
-            documentService.deleteDocument(TEST_DOC_ID);
+            documentServiceImp.deleteDocument(TEST_DOC_ID);
             InOrder inOrder = inOrder(minioStorageService, documentRepository, elasticsearchService);
             inOrder.verify(minioStorageService).deleteFile(TEST_DOC_ID);
             inOrder.verify(documentRepository).deleteById(TEST_DOC_ID);
@@ -157,7 +157,7 @@ public class DocumentServiceTest {
             DocumentRequest expectedDto = DocumentRequest.builder().build();
             when(mapper.toDto(entity)).thenReturn(expectedDto);
 
-            DocumentRequest result = documentService.getDocument(TEST_DOC_ID);
+            DocumentRequest result = documentServiceImp.getDocument(TEST_DOC_ID);
             assertThat(result).isNotNull();
             verify(documentRepository).findById(TEST_DOC_ID);
             verify(mapper).toDto(entity);
@@ -174,7 +174,7 @@ public class DocumentServiceTest {
             DocumentRequest expectedDto = DocumentRequest.builder().build();
             when(mapper.toDto(entity)).thenReturn(expectedDto);
 
-            List<DocumentRequest> results = documentService.searchDocuments(SEARCH_QUERY_VALID);
+            List<DocumentRequest> results = documentServiceImp.searchDocuments(SEARCH_QUERY_VALID);
             assertThat(results).isNotNull();
             assertThat(results).isNotEmpty().hasSize(1);
         }
@@ -188,7 +188,7 @@ public class DocumentServiceTest {
         @DisplayName("uploadFile - empty file should throw exception")
         void uploadFileEmptyFileThrows() {
             MultipartFile file = createMockMultipartFile(new byte[0]);
-            assertThatThrownBy(() -> documentService.uploadFile(file))
+            assertThatThrownBy(() -> documentServiceImp.uploadFile(file))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage(ERROR_FILE_EMPTY);
         }
@@ -197,7 +197,7 @@ public class DocumentServiceTest {
         @DisplayName("renameFile - document not found should throw exception")
         void renameFileDocumentNotFoundThrows() {
             when(documentRepository.findById(TEST_DOC_ID)).thenReturn(Optional.empty());
-            assertThatThrownBy(() -> documentService.renameFile(TEST_DOC_ID, NEW_FILENAME))
+            assertThatThrownBy(() -> documentServiceImp.renameFile(TEST_DOC_ID, NEW_FILENAME))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(ERROR_DOCUMENT_NOT_FOUND);
         }
@@ -206,7 +206,7 @@ public class DocumentServiceTest {
         @DisplayName("getFileBytes - file not found should throw exception")
         void getFileBytesFileNotFoundThrows() {
             when(minioStorageService.loadFile(TEST_DOC_ID)).thenReturn(Optional.empty());
-            assertThatThrownBy(() -> documentService.getFileBytes(TEST_DOC_ID))
+            assertThatThrownBy(() -> documentServiceImp.getFileBytes(TEST_DOC_ID))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(ERROR_FILE_NOT_FOUND);
         }
@@ -215,7 +215,7 @@ public class DocumentServiceTest {
         @DisplayName("getDocument - document not found should throw exception")
         void getDocumentNotFoundThrows() {
             when(documentRepository.findById(TEST_DOC_ID)).thenReturn(Optional.empty());
-            assertThatThrownBy(() -> documentService.getDocument(TEST_DOC_ID))
+            assertThatThrownBy(() -> documentServiceImp.getDocument(TEST_DOC_ID))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(ERROR_DOCUMENT_NOT_FOUND);
         }
@@ -224,7 +224,7 @@ public class DocumentServiceTest {
         @DisplayName("searchDocuments - null result from Elasticsearch returns empty list")
         void searchDocumentsNullResultReturnsEmptyList() {
             when(elasticsearchService.searchIdsByQuery(SEARCH_QUERY_NON_EXISTENT)).thenReturn(null);
-            List<DocumentRequest> results = documentService.searchDocuments(SEARCH_QUERY_NON_EXISTENT);
+            List<DocumentRequest> results = documentServiceImp.searchDocuments(SEARCH_QUERY_NON_EXISTENT);
             assertThat(results).isNotNull().isEmpty();
         }
     }
@@ -246,7 +246,7 @@ public class DocumentServiceTest {
             when(mapper.toDto(e1)).thenReturn(dto1);
             when(mapper.toDto(e2)).thenReturn(dto2);
 
-            List<DocumentRequest> result = documentService.getAllDocuments();
+            List<DocumentRequest> result = documentServiceImp.getAllDocuments();
             assertThat(result).hasSize(2);
             assertThat(result.get(0)).isEqualTo(dto1);
             assertThat(result.get(1)).isEqualTo(dto2);
@@ -256,7 +256,7 @@ public class DocumentServiceTest {
         @DisplayName("getAllDocuments returns empty list when no documents")
         void returnsEmptyList() {
             when(documentRepository.findAll()).thenReturn(Collections.emptyList());
-            List<DocumentRequest> result = documentService.getAllDocuments();
+            List<DocumentRequest> result = documentServiceImp.getAllDocuments();
             assertThat(result).isEmpty();
         }
     }
@@ -276,7 +276,7 @@ public class DocumentServiceTest {
         })
         @DisplayName("ensurePdfExtension properly fixes filenames")
         void ensuresExtension(String input, String expected) {
-            String result = documentService.ensurePdfExtension(input);
+            String result = documentServiceImp.ensurePdfExtension(input);
             assertThat(result).isEqualTo(expected);
         }
     }

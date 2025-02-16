@@ -1,6 +1,6 @@
 package at.fhtw.services.integration;
 
-import at.fhtw.services.OcrService;
+import at.fhtw.services.OcrServiceImp;
 import net.sourceforge.tess4j.Tesseract;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -29,18 +29,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest
 @ExtendWith(IntegrationTestBase.SharedContainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DisplayName("OcrService Integration Tests")
-class OcrServiceIntegrationTest extends IntegrationTestBase {
+@DisplayName("OcrServiceImp Integration Tests")
+class OcrServiceImpIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private Tesseract tesseract;
 
-    private OcrService ocrService;
+    private OcrServiceImp ocrServiceImp;
     private File tempFile;
 
     @BeforeEach
     void setUp() {
-        ocrService = new OcrService(tesseract, DPI);
+        ocrServiceImp = new OcrServiceImp(tesseract, DPI);
     }
 
     @AfterEach
@@ -54,7 +54,7 @@ class OcrServiceIntegrationTest extends IntegrationTestBase {
     @DisplayName("OCR Service should successfully extract text from PDF containing actual text content")
     void testPdfTextExtraction() throws Exception {
         tempFile = createTestPdfWithText();
-        String result = ocrService.extractText(tempFile);
+        String result = ocrServiceImp.extractText(tempFile);
         assertThat(result).containsIgnoringCase(HELLO_PDF_TEXT);
     }
 
@@ -63,7 +63,7 @@ class OcrServiceIntegrationTest extends IntegrationTestBase {
     void testInvalidPdfContent() throws Exception {
         tempFile = File.createTempFile(INVALID_PDF_PREFIX, PDF_EXTENSION);
         Files.write(tempFile.toPath(), INVALID_CONTENT.getBytes());
-        assertThatThrownBy(() -> ocrService.extractText(tempFile))
+        assertThatThrownBy(() -> ocrServiceImp.extractText(tempFile))
                 .isInstanceOf(Exception.class);
     }
 
@@ -75,7 +75,7 @@ class OcrServiceIntegrationTest extends IntegrationTestBase {
             doc.addPage(new PDPage());
             doc.save(tempFile);
         }
-        String text = ocrService.extractText(tempFile);
+        String text = ocrServiceImp.extractText(tempFile);
         assertThat(text).isNotNull();
     }
 
@@ -86,7 +86,7 @@ class OcrServiceIntegrationTest extends IntegrationTestBase {
         try (PDDocument document = new PDDocument()) {
             document.save(tempFile);
         }
-        assertThatThrownBy(() -> ocrService.extractText(tempFile))
+        assertThatThrownBy(() -> ocrServiceImp.extractText(tempFile))
                 .isInstanceOf(IndexOutOfBoundsException.class);
     }
 
@@ -94,7 +94,7 @@ class OcrServiceIntegrationTest extends IntegrationTestBase {
     @DisplayName("OCR Service should handle null file reference")
     @SuppressWarnings("ConstantConditions")
     void testNullFileReference() {
-        assertThatThrownBy(() -> ocrService.extractText(null))
+        assertThatThrownBy(() -> ocrServiceImp.extractText(null))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -108,7 +108,7 @@ class OcrServiceIntegrationTest extends IntegrationTestBase {
         g2d.dispose();
         tempFile = File.createTempFile("blank_image_", PNG_EXTENSION);
         ImageIO.write(blankImage, IMAGE_FORMAT, tempFile);
-        String result = ocrService.extractText(tempFile);
+        String result = ocrServiceImp.extractText(tempFile);
         assertThat(result).isNotNull();
         assertThat(result.trim()).isEmpty();
     }

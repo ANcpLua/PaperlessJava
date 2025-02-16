@@ -2,7 +2,7 @@ package at.fhtw.rest.unit;
 
 import at.fhtw.rest.api.DocumentController;
 import at.fhtw.rest.api.DocumentRequest;
-import at.fhtw.rest.core.imp.IDocumentService;
+import at.fhtw.rest.core.DocumentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -53,7 +53,7 @@ public class DocumentControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private IDocumentService documentService;
+    private DocumentService documentService;
 
     @Test
     @DisplayName("Successful upload returns 201 and DocumentRequest")

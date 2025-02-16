@@ -1,6 +1,6 @@
 package at.fhtw.rest.message;
 
-import at.fhtw.rest.persistence.imp.IDocumentRepository;
+import at.fhtw.rest.persistence.DocumentRepository;
 import at.fhtw.rest.persistence.DocumentEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CompletionEventHandler {
-    private final IDocumentRepository documentRepository;
+    private final DocumentRepository documentRepository;
     private final ObjectMapper objectMapper;
 
     @RabbitListener(queues = "${rabbitmq.queue.result:document_result_queue}")

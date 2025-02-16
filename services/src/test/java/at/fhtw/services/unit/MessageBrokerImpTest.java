@@ -1,7 +1,7 @@
 package at.fhtw.services.unit;
 
+import at.fhtw.services.MessageBrokerImp;
 import at.fhtw.services.MessageBroker;
-import at.fhtw.services.imp.IMessageBroker;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-class MessageBrokerTest {
+class MessageBrokerImpTest {
 
     @Mock
     private RabbitTemplate rabbitTemplate;
@@ -51,20 +51,20 @@ class MessageBrokerTest {
     private ArgumentCaptor<String> messageCaptor;
 
     private ObjectMapper mapper;
-    private IMessageBroker messageBroker;
+    private MessageBroker messageBroker;
 
     @BeforeEach
     void setUp() {
         Locale.setDefault(Locale.ENGLISH);
         mapper = new ObjectMapper();
-        MessageBroker concreteBroker = new MessageBroker(rabbitTemplate, QUEUE_NAME, mapper);
+        MessageBrokerImp concreteBroker = new MessageBrokerImp(rabbitTemplate, QUEUE_NAME, mapper);
         ReflectionTestUtils.setField(concreteBroker, FIELD_RESULT_QUEUE, QUEUE_NAME);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         MethodValidationInterceptor interceptor = new MethodValidationInterceptor(factory.getValidator());
         factory.close();
         ProxyFactory proxyFactory = new ProxyFactory(concreteBroker);
         proxyFactory.addAdvice(interceptor);
-        messageBroker = (IMessageBroker) proxyFactory.getProxy();
+        messageBroker = (MessageBroker) proxyFactory.getProxy();
     }
 
     @AfterEach
@@ -106,7 +106,7 @@ class MessageBrokerTest {
         }
 
         @ParameterizedTest
-        @MethodSource("at.fhtw.services.unit.MessageBrokerTest#messagePermutations")
+        @MethodSource("at.fhtw.services.unit.MessageBrokerImpTest#messagePermutations")
         @DisplayName("Given various permutations of document ID and text, message is formatted correctly")
         void testSendToResultQueue_withPermutations(String documentId, String ocrText) throws Exception {
             messageBroker.sendToResultQueue(documentId, ocrText);
@@ -135,7 +135,7 @@ class MessageBrokerTest {
         @Test
         void testSendToResultQueueSuccess() throws JsonProcessingException {
             ObjectMapper mockMapper = mock(ObjectMapper.class);
-            MessageBroker localBroker = new MessageBroker(rabbitTemplate, QUEUE_NAME, mockMapper);
+            MessageBrokerImp localBroker = new MessageBrokerImp(rabbitTemplate, QUEUE_NAME, mockMapper);
             ObjectNode node = mock(ObjectNode.class);
             when(mockMapper.createObjectNode()).thenReturn(node);
             when(mockMapper.writeValueAsString(node)).thenReturn("{\"documentId\":\"" + DOC_ID + "\",\"ocrText\":\"" + OCR_TEXT + "\"}");
@@ -157,7 +157,7 @@ class MessageBrokerTest {
         @Test
         void testSendToResultQueueThrowsRuntimeException() throws JsonProcessingException {
             ObjectMapper mockMapper = mock(ObjectMapper.class);
-            MessageBroker localBroker = new MessageBroker(rabbitTemplate, QUEUE_NAME, mockMapper);
+            MessageBrokerImp localBroker = new MessageBrokerImp(rabbitTemplate, QUEUE_NAME, mockMapper);
             when(mockMapper.createObjectNode()).thenReturn(Mockito.mock(ObjectNode.class));
             when(mockMapper.writeValueAsString(any(ObjectNode.class)))
                     .thenThrow(new JsonProcessingException(SIMULATED_JSON_ERROR) {});

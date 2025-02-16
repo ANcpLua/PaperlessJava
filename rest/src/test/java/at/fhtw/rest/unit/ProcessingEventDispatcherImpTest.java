@@ -1,6 +1,6 @@
 package at.fhtw.rest.unit;
 
-import at.fhtw.rest.message.ProcessingEventDispatcher;
+import at.fhtw.rest.message.ProcessingEventDispatcherImp;
 import jakarta.validation.Validation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,15 +23,15 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.ReflectionTestUtils.*;
 
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-public class ProcessingEventDispatcherTest {
+public class ProcessingEventDispatcherImpTest {
 
     private RabbitTemplate rabbitTemplate;
-    private ProcessingEventDispatcher dispatcher;
+    private ProcessingEventDispatcherImp dispatcher;
 
     @BeforeEach
     void setUp() {
         rabbitTemplate = mock(RabbitTemplate.class);
-        dispatcher = new ProcessingEventDispatcher(rabbitTemplate);
+        dispatcher = new ProcessingEventDispatcherImp(rabbitTemplate);
         setField(dispatcher, "exchangeName", "test_exchange");
         setField(dispatcher, "routingKey", "test_routing_key");
         Validation.buildDefaultValidatorFactory();
@@ -51,7 +51,7 @@ public class ProcessingEventDispatcherTest {
         @Test
         @DisplayName("Fields are null before Spring initialization")
         void testFieldsBeforeSpringInitialization() {
-            ProcessingEventDispatcher newDispatcher = new ProcessingEventDispatcher(rabbitTemplate);
+            ProcessingEventDispatcherImp newDispatcher = new ProcessingEventDispatcherImp(rabbitTemplate);
             assertNull(newDispatcher.getExchangeName(), "Exchange name should be null before Spring initialization");
             assertNull(newDispatcher.getRoutingKey(), "Routing key should be null before Spring initialization");
         }
@@ -59,7 +59,7 @@ public class ProcessingEventDispatcherTest {
         @Test
         @DisplayName("Value annotations set default values correctly")
         void testValueAnnotationDefaults() {
-            ProcessingEventDispatcher newDispatcher = new ProcessingEventDispatcher(rabbitTemplate);
+            ProcessingEventDispatcherImp newDispatcher = new ProcessingEventDispatcherImp(rabbitTemplate);
             setField(newDispatcher, "exchangeName", "document_exchange");
             setField(newDispatcher, "routingKey", "document_routing_key");
             assertEquals("document_exchange", newDispatcher.getExchangeName(), "Exchange name should have correct default value");

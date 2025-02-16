@@ -1,6 +1,6 @@
 package at.fhtw.services.integration;
 
-import at.fhtw.services.ElasticsearchIndexService;
+import at.fhtw.services.ElasticsearchIndexServiceImp;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
@@ -18,11 +18,11 @@ import static org.hamcrest.Matchers.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(IntegrationTestBase.SharedContainersExtension.class)
-class ElasticsearchIndexServiceIntegrationTest extends IntegrationTestBase {
+class ElasticsearchIndexServiceImpIntegrationTest extends IntegrationTestBase {
 
 
     private ElasticsearchClient esClient;
-    private ElasticsearchIndexService indexService;
+    private ElasticsearchIndexServiceImp indexService;
     private RestClient restClient;
 
     @BeforeAll
@@ -31,7 +31,7 @@ class ElasticsearchIndexServiceIntegrationTest extends IntegrationTestBase {
         restClient = RestClient.builder(HttpHost.create(elasticsearchUrl)).build();
         RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
         esClient = new ElasticsearchClient(transport);
-        indexService = new ElasticsearchIndexService(esClient, INDEX_NAME);
+        indexService = new ElasticsearchIndexServiceImp(esClient, INDEX_NAME);
     }
 
     @BeforeEach

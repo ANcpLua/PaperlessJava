@@ -1,9 +1,9 @@
 package at.fhtw.services.processor;
 
-import at.fhtw.services.imp.IElasticsearchIndexService;
-import at.fhtw.services.imp.IMessageBroker;
-import at.fhtw.services.imp.IMinioStorageService;
-import at.fhtw.services.imp.IOcrService;
+import at.fhtw.services.ElasticsearchIndexService;
+import at.fhtw.services.MessageBroker;
+import at.fhtw.services.MinioStorageService;
+import at.fhtw.services.OcrService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -15,10 +15,10 @@ import java.io.File;
 @Service
 @RequiredArgsConstructor
 public class DocumentProcessor {
-    private final IMinioStorageService storageService;
-    private final IOcrService ocrService;
-    private final IElasticsearchIndexService indexService;
-    private final IMessageBroker messageBroker;
+    private final MinioStorageService storageService;
+    private final OcrService ocrService;
+    private final ElasticsearchIndexService indexService;
+    private final MessageBroker messageBroker;
 
     @RabbitListener(queues = "${rabbitmq.queue.processing}")
     public void processDocument(String message) {

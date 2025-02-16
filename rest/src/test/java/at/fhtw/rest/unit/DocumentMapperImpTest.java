@@ -1,7 +1,7 @@
 package at.fhtw.rest.unit;
 
 import at.fhtw.rest.api.DocumentRequest;
-import at.fhtw.rest.infrastructure.mapper.DocumentMapper;
+import at.fhtw.rest.infrastructure.mapper.DocumentMapperImp;
 import at.fhtw.rest.persistence.DocumentEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,13 +15,13 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-public class DocumentMapperTest {
+public class DocumentMapperImpTest {
 
-    private DocumentMapper documentMapper;
+    private DocumentMapperImp documentMapperImp;
 
     @BeforeEach
     void setUp() {
-        documentMapper = new DocumentMapper();
+        documentMapperImp = new DocumentMapperImp();
     }
 
     @Nested
@@ -41,7 +41,7 @@ public class DocumentMapperTest {
                     .ocrText("Sample OCR text")
                     .build();
 
-            DocumentEntity entity = documentMapper.toEntity(request);
+            DocumentEntity entity = documentMapperImp.toEntity(request);
 
             assertThat(entity).as("Mapped entity should not be null").isNotNull();
             assertThat(entity.getId()).as("ID should be mapped correctly").isEqualTo("123");
@@ -58,7 +58,7 @@ public class DocumentMapperTest {
         @Test
         @DisplayName("toEntity - should return null when given a null DocumentRequest")
         void testToEntityWithNullRequest() {
-            DocumentEntity entity = documentMapper.toEntity(null);
+            DocumentEntity entity = documentMapperImp.toEntity(null);
             assertThat(entity).as("Mapping null DocumentRequest should return null").isNull();
         }
     }
@@ -79,7 +79,7 @@ public class DocumentMapperTest {
             entity.setOcrJobDone(true);
             entity.setOcrText("Extracted text");
 
-            DocumentRequest dto = documentMapper.toDto(entity);
+            DocumentRequest dto = documentMapperImp.toDto(entity);
 
             assertThat(dto).as("Mapped DTO should not be null").isNotNull();
             assertThat(dto.getId()).as("ID should be mapped correctly").isEqualTo("456");
@@ -95,7 +95,7 @@ public class DocumentMapperTest {
         @Test
         @DisplayName("toDto - should return null when given a null DocumentEntity")
         void testToDtoWithNullEntity() {
-            DocumentRequest dto = documentMapper.toDto(null);
+            DocumentRequest dto = documentMapperImp.toDto(null);
             assertThat(dto).as("Mapping null DocumentEntity should return null").isNull();
         }
     }

@@ -1,9 +1,9 @@
 package at.fhtw.services.integration;
 
-import at.fhtw.services.imp.IElasticsearchIndexService;
-import at.fhtw.services.imp.IMessageBroker;
-import at.fhtw.services.imp.IMinioStorageService;
-import at.fhtw.services.imp.IOcrService;
+import at.fhtw.services.ElasticsearchIndexService;
+import at.fhtw.services.MessageBroker;
+import at.fhtw.services.MinioStorageService;
+import at.fhtw.services.OcrService;
 import at.fhtw.services.processor.DocumentProcessor;
 import lombok.Getter;
 import lombok.Setter;
@@ -158,15 +158,15 @@ public abstract class IntegrationTestBase {
         }
 
         @Bean
-        public DocumentProcessor documentProcessor(IMinioStorageService storageService,
-                                                   IOcrService ocrService,
-                                                   IElasticsearchIndexService indexService,
-                                                   IMessageBroker messageBroker) {
+        public DocumentProcessor documentProcessor(MinioStorageService storageService,
+                                                   OcrService ocrService,
+                                                   ElasticsearchIndexService indexService,
+                                                   MessageBroker messageBroker) {
             return new DocumentProcessor(storageService, ocrService, indexService, messageBroker);
         }
     }
 
-    public static class DummyMinioStorageService implements IMinioStorageService {
+    public static class DummyMinioStorageService implements MinioStorageService {
 
         @Setter
         private boolean shouldThrowDownload;
@@ -184,7 +184,7 @@ public abstract class IntegrationTestBase {
         }
     }
 
-    public static class DummyOcrService implements IOcrService {
+    public static class DummyOcrService implements OcrService {
 
         @Setter
         private static boolean shouldThrow = false;
@@ -208,7 +208,7 @@ public abstract class IntegrationTestBase {
         }
     }
 
-    public static class DummyElasticsearchIndexService implements IElasticsearchIndexService {
+    public static class DummyElasticsearchIndexService implements ElasticsearchIndexService {
 
         private final Map<String, String> indexedText = new HashMap<>();
 
@@ -222,7 +222,7 @@ public abstract class IntegrationTestBase {
         }
     }
 
-    public static class DummyMessageBroker implements IMessageBroker {
+    public static class DummyMessageBroker implements MessageBroker {
 
         private final Map<String, String> messages = new HashMap<>();
 

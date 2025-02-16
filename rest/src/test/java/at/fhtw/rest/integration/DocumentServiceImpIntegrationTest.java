@@ -1,13 +1,13 @@
 package at.fhtw.rest.integration;
 
 import at.fhtw.rest.api.DocumentRequest;
-import at.fhtw.rest.core.DocumentService;
-import at.fhtw.rest.core.ElasticsearchService;
-import at.fhtw.rest.infrastructure.mapper.imp.IDocumentMapper;
-import at.fhtw.rest.message.imp.IProcessingEventDispatcher;
+import at.fhtw.rest.core.DocumentServiceImp;
+import at.fhtw.rest.core.ElasticsearchServiceImp;
+import at.fhtw.rest.infrastructure.mapper.DocumentMapper;
+import at.fhtw.rest.message.ProcessingEventDispatcher;
 import at.fhtw.rest.persistence.DocumentEntity;
-import at.fhtw.rest.persistence.imp.IDocumentRepository;
-import at.fhtw.rest.persistence.imp.IMinioStorageService;
+import at.fhtw.rest.persistence.DocumentRepository;
+import at.fhtw.rest.persistence.MinioStorageService;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @DisplayName("Document Service Integration Tests")
-class DocumentServiceIntegrationTest {
+class DocumentServiceImpIntegrationTest {
 
     private static final String MINIO_VERSION = "RELEASE.2023-09-04T19-57-37Z";
     private static final String RABBITMQ_VERSION = "3.12-management";
@@ -78,22 +78,22 @@ class DocumentServiceIntegrationTest {
     private static final String SEARCH_TEST_FILENAME = "searchable-document.pdf";
 
     @Autowired
-    private DocumentService documentService;
+    private DocumentServiceImp documentServiceImp;
 
     @Autowired
-    private IDocumentRepository documentRepository;
+    private DocumentRepository documentRepository;
 
     @Autowired
-    private IMinioStorageService minioStorageService;
+    private MinioStorageService minioStorageService;
 
     @Autowired
-    private ElasticsearchService elasticsearchService;
+    private ElasticsearchServiceImp elasticsearchServiceImp;
 
     @SpyBean
-    private IProcessingEventDispatcher processingEventDispatcher;
+    private ProcessingEventDispatcher processingEventDispatcher;
 
     @Autowired
-    private IDocumentMapper documentMapper;
+    private DocumentMapper documentMapper;
 
     @Autowired
     private MinioClient minioClient;
@@ -167,7 +167,7 @@ class DocumentServiceIntegrationTest {
         try {
             documentRepository.deleteAll();
             minioStorageService.deleteFile(TEST_PDF_FILENAME);
-            elasticsearchService.deleteDocument(SEARCH_TEST_FILENAME);
+            elasticsearchServiceImp.deleteDocument(SEARCH_TEST_FILENAME);
         } catch (Exception e) {
             fail("Failed to clean up resources before test: " + e.getMessage());
         }
@@ -190,7 +190,7 @@ class DocumentServiceIntegrationTest {
         @DisplayName("Should upload file and trigger processing")
         void shouldUploadFileAndTriggerProcessing() throws IOException {
             MockMultipartFile file = createTestFile(TEST_PDF_FILENAME, TEST_FILE_CONTENT);
-            DocumentRequest response = documentService.uploadFile(file);
+            DocumentRequest response = documentServiceImp.uploadFile(file);
             assertThat(response).isNotNull();
             assertThat(response.getId()).isNotBlank();
             assertThat(response.getFilename()).isEqualTo(TEST_PDF_FILENAME);
@@ -204,7 +204,7 @@ class DocumentServiceIntegrationTest {
         @DisplayName("Should reject empty file upload")
         void shouldRejectEmptyFile() {
             MockMultipartFile emptyFile = createTestFile("empty.pdf", "");
-            assertThatThrownBy(() -> documentService.uploadFile(emptyFile))
+            assertThatThrownBy(() -> documentServiceImp.uploadFile(emptyFile))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("File must not be empty");
         }
@@ -218,10 +218,10 @@ class DocumentServiceIntegrationTest {
         @DisplayName("Should rename file across all services")
         void shouldRenameFileAcrossServices() throws IOException {
             MockMultipartFile file = createTestFile("original.pdf", TEST_FILE_CONTENT);
-            DocumentRequest uploadResponse = documentService.uploadFile(file);
+            DocumentRequest uploadResponse = documentServiceImp.uploadFile(file);
             String docId = uploadResponse.getId();
             String newFilename = "renamed.pdf";
-            DocumentRequest renameResponse = documentService.renameFile(docId, newFilename);
+            DocumentRequest renameResponse = documentServiceImp.renameFile(docId, newFilename);
             assertThat(renameResponse.getFilename()).isEqualTo(newFilename);
             Optional<DocumentEntity> persistedEntity = documentRepository.findById(docId);
             assertThat(persistedEntity).isPresent();
@@ -232,8 +232,8 @@ class DocumentServiceIntegrationTest {
         @DisplayName("Should download MinIO file content")
         void shouldDownloadFileContent() throws IOException {
             MockMultipartFile file = createTestFile(TEST_PDF_FILENAME, TEST_FILE_CONTENT);
-            DocumentRequest uploadResponse = documentService.uploadFile(file);
-            byte[] downloadedContent = documentService.getFileBytes(uploadResponse.getId());
+            DocumentRequest uploadResponse = documentServiceImp.uploadFile(file);
+            byte[] downloadedContent = documentServiceImp.getFileBytes(uploadResponse.getId());
             assertThat(downloadedContent).isNotNull();
             assertThat(new String(downloadedContent, StandardCharsets.UTF_8)).isEqualTo(TEST_FILE_CONTENT);
         }
@@ -242,12 +242,12 @@ class DocumentServiceIntegrationTest {
         @DisplayName("Should delete document and clean up all resources")
         void shouldDeleteDocumentAndCleanup() throws IOException {
             MockMultipartFile file = createTestFile(TEST_PDF_FILENAME, TEST_FILE_CONTENT);
-            DocumentRequest response = documentService.uploadFile(file);
+            DocumentRequest response = documentServiceImp.uploadFile(file);
             String docId = response.getId();
-            documentService.deleteDocument(docId);
+            documentServiceImp.deleteDocument(docId);
             assertThat(documentRepository.findById(docId)).isEmpty();
             assertThat(minioStorageService.loadFile(docId)).isEmpty();
-            assertThat(elasticsearchService.searchIdsByQuery(TEST_PDF_FILENAME)).isEmpty();
+            assertThat(elasticsearchServiceImp.searchIdsByQuery(TEST_PDF_FILENAME)).isEmpty();
         }
     }
 
@@ -268,7 +268,7 @@ class DocumentServiceIntegrationTest {
             entity.setOcrJobDone(true);
             entity.setOcrText("Integration testing document");
             documentRepository.save(entity);
-            List<String> docIds = elasticsearchService.searchIdsByQuery("Hello");
+            List<String> docIds = elasticsearchServiceImp.searchIdsByQuery("Hello");
             assertThat(docIds).isNotNull();
             List<DocumentRequest> expectedResults = docIds.stream()
                     .map(documentRepository::findById)
@@ -276,14 +276,14 @@ class DocumentServiceIntegrationTest {
                     .map(Optional::get)
                     .map(documentMapper::toDto)
                     .collect(Collectors.toList());
-            List<DocumentRequest> actualResults = documentService.searchDocuments("Hello");
+            List<DocumentRequest> actualResults = documentServiceImp.searchDocuments("Hello");
             assertThat(actualResults).isEqualTo(expectedResults);
         }
 
         @Test
         @DisplayName("Should return empty list for non-matching query")
         void shouldReturnEmptyListForNonMatch() {
-            List<DocumentRequest> results = documentService.searchDocuments("nonexistent");
+            List<DocumentRequest> results = documentServiceImp.searchDocuments("nonexistent");
             assertThat(results).isEmpty();
         }
     }
@@ -295,7 +295,7 @@ class DocumentServiceIntegrationTest {
         @Test
         @DisplayName("Should handle non-existent document retrieval")
         void shouldHandleNonExistentDocument() {
-            assertThatThrownBy(() -> documentService.getDocument("nonexistent-id"))
+            assertThatThrownBy(() -> documentServiceImp.getDocument("nonexistent-id"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Document not found");
         }
@@ -303,7 +303,7 @@ class DocumentServiceIntegrationTest {
         @Test
         @DisplayName("Should handle non-existent file download")
         void shouldHandleNonExistentFileDownload() {
-            assertThatThrownBy(() -> documentService.getFileBytes("nonexistent-id"))
+            assertThatThrownBy(() -> documentServiceImp.getFileBytes("nonexistent-id"))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("File not found");
         }
@@ -311,7 +311,7 @@ class DocumentServiceIntegrationTest {
         @Test
         @DisplayName("Should handle deletion of non-existent document")
         void shouldHandleNonExistentDocumentDeletion() {
-            assertThatCode(() -> documentService.deleteDocument("nonexistent-id"))
+            assertThatCode(() -> documentServiceImp.deleteDocument("nonexistent-id"))
                     .doesNotThrowAnyException();
         }
     }

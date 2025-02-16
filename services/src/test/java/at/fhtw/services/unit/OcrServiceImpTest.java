@@ -1,6 +1,6 @@
 package at.fhtw.services.unit;
 
-import at.fhtw.services.OcrService;
+import at.fhtw.services.OcrServiceImp;
 import net.sourceforge.tess4j.Tesseract;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,17 +25,17 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-class OcrServiceTest {
+class OcrServiceImpTest {
 
     @Mock
     private Tesseract tesseract;
 
-    private OcrService ocrService;
+    private OcrServiceImp ocrServiceImp;
     private File tempFile;
 
     @BeforeEach
     void setUp() {
-        ocrService = new OcrService(tesseract, 300);
+        ocrServiceImp = new OcrServiceImp(tesseract, 300);
     }
 
     @AfterEach
@@ -55,7 +55,7 @@ class OcrServiceTest {
             tempFile = File.createTempFile("test-file-", ".txt");
             when(tesseract.doOCR(any(File.class))).thenReturn(MOCK_TEXT);
 
-            String actualText = ocrService.extractText(tempFile);
+            String actualText = ocrServiceImp.extractText(tempFile);
 
             assertThat(actualText).isEqualTo(MOCK_TEXT);
             verify(tesseract).doOCR(tempFile);
@@ -66,7 +66,7 @@ class OcrServiceTest {
             tempFile = File.createTempFile("test-file-", ".txt");
             when(tesseract.doOCR(tempFile)).thenThrow(new RuntimeException(OCR_FAILED_MESSAGE));
 
-            assertThatThrownBy(() -> ocrService.extractText(tempFile))
+            assertThatThrownBy(() -> ocrServiceImp.extractText(tempFile))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining(OCR_FAILED_MESSAGE);
 
@@ -80,7 +80,7 @@ class OcrServiceTest {
         void whenAttemptingOcr_thenShouldThrowFileNotFound() {
             File nonExistent = new File("does-not-exist");
 
-            assertThatThrownBy(() -> ocrService.extractText(nonExistent))
+            assertThatThrownBy(() -> ocrServiceImp.extractText(nonExistent))
                     .isInstanceOf(FileNotFoundException.class);
         }
     }

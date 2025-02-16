@@ -1,9 +1,9 @@
 package at.fhtw.services.unit;
 
-import at.fhtw.services.imp.IElasticsearchIndexService;
-import at.fhtw.services.imp.IMessageBroker;
-import at.fhtw.services.imp.IMinioStorageService;
-import at.fhtw.services.imp.IOcrService;
+import at.fhtw.services.ElasticsearchIndexService;
+import at.fhtw.services.MessageBroker;
+import at.fhtw.services.MinioStorageService;
+import at.fhtw.services.OcrService;
 import at.fhtw.services.processor.DocumentProcessor;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,13 +32,13 @@ class DocumentProcessorTest extends TestBase {
 
     private final String fileExtension = ".pdf";
     @Mock
-    private IMinioStorageService mockStorageService;
+    private MinioStorageService mockStorageService;
     @Mock
-    private IOcrService mockOcrService;
+    private OcrService mockOcrService;
     @Mock
-    private IElasticsearchIndexService mockIndexService;
+    private ElasticsearchIndexService mockIndexService;
     @Mock
-    private IMessageBroker mockMessageBroker;
+    private MessageBroker mockMessageBroker;
 
     @TempDir
     Path tempDir;

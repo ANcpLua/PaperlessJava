@@ -1,7 +1,7 @@
 package at.fhtw.rest.integration;
 
 import at.fhtw.rest.api.DocumentRequest;
-import at.fhtw.rest.core.imp.IDocumentService;
+import at.fhtw.rest.core.DocumentService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeAll;
@@ -50,7 +50,7 @@ class DocumentControllerIntegrationTest {
     private Integer port;
 
     @MockBean
-    private IDocumentService documentService;
+    private DocumentService documentService;
 
     static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 

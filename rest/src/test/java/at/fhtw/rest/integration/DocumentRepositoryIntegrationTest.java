@@ -1,7 +1,7 @@
 package at.fhtw.rest.integration;
 
 import at.fhtw.rest.persistence.DocumentEntity;
-import at.fhtw.rest.persistence.imp.IDocumentRepository;
+import at.fhtw.rest.persistence.DocumentRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-class IDocumentRepositoryIntegrationTest {
+class DocumentRepositoryIntegrationTest {
 
     static final PostgreSQLContainer<?> POSTGRES =
             new PostgreSQLContainer<>("postgres:16-alpine");
@@ -41,7 +41,7 @@ class IDocumentRepositoryIntegrationTest {
     }
 
     @Autowired
-    private IDocumentRepository documentRepository;
+    private DocumentRepository documentRepository;
 
     @Test
     void testSaveAndFindById() {

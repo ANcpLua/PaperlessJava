@@ -2,7 +2,7 @@ package at.fhtw.rest.unit;
 
 import at.fhtw.rest.message.CompletionEventHandler;
 import at.fhtw.rest.persistence.DocumentEntity;
-import at.fhtw.rest.persistence.imp.IDocumentRepository;
+import at.fhtw.rest.persistence.DocumentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +37,7 @@ public class CompletionEventHandlerTest {
     private static final String ASSERTION_MSG_OCR_TEXT_UPDATED_AFTER_SAVE_EXCEPTION = "OCR text should be updated even if save fails";
 
     @Mock
-    private IDocumentRepository documentRepository;
+    private DocumentRepository documentRepository;
 
     private ObjectMapper objectMapper;
     private CompletionEventHandler handler;

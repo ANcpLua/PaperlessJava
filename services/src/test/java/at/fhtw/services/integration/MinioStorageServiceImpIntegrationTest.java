@@ -1,6 +1,6 @@
 package at.fhtw.services.integration;
 
-import at.fhtw.services.MinioStorageService;
+import at.fhtw.services.MinioStorageServiceImp;
 
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(IntegrationTestBase.SharedContainersExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class MinioStorageServiceIntegrationTest extends IntegrationTestBase {
+class MinioStorageServiceImpIntegrationTest extends IntegrationTestBase {
 
     private MinioClient minioClient;
-    private MinioStorageService storageService;
+    private MinioStorageServiceImp storageService;
 
     @BeforeAll
     void setUp() {
@@ -33,7 +33,7 @@ class MinioStorageServiceIntegrationTest extends IntegrationTestBase {
                     .endpoint(SharedContainersExtension.getMinioEndpoint())
                     .credentials(SharedContainersExtension.MINIO_USERNAME, SharedContainersExtension.MINIO_PASSWORD)
                     .build();
-            storageService = new MinioStorageService(minioClient);
+            storageService = new MinioStorageServiceImp(minioClient);
             initializeBucket();
         } catch (Exception e) {
             throw new RuntimeException(EXPECTED_ERROR_RESPONSE_EXCEPTION_MSG , e);

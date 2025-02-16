@@ -1,6 +1,6 @@
 package at.fhtw.rest.unit;
 
-import at.fhtw.rest.core.ElasticsearchService;
+import at.fhtw.rest.core.ElasticsearchServiceImp;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.DeleteRequest;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-class ElasticsearchServiceTest {
+class ElasticsearchServiceImpTest {
 
     private static final String DOC_ID = "test-doc-123";
     private static final String NEW_FILENAME = "updated-file.pdf";
@@ -48,11 +48,11 @@ class ElasticsearchServiceTest {
     @Mock
     private ElasticsearchClient esClient;
 
-    private ElasticsearchService elasticsearchService;
+    private ElasticsearchServiceImp elasticsearchServiceImp;
 
     @BeforeEach
     void setUp() {
-        elasticsearchService = new ElasticsearchService(esClient, "documents");
+        elasticsearchServiceImp = new ElasticsearchServiceImp(esClient, "documents");
     }
 
     @Nested
@@ -67,7 +67,7 @@ class ElasticsearchServiceTest {
             doReturn(mockResponse)
                     .when(esClient)
                     .update(any(UpdateRequest.class), eq(Map.class));
-            elasticsearchService.updateFilename(DOC_ID, NEW_FILENAME);
+            elasticsearchServiceImp.updateFilename(DOC_ID, NEW_FILENAME);
             verify(esClient).update(any(UpdateRequest.class), eq(Map.class));
         }
 
@@ -78,7 +78,7 @@ class ElasticsearchServiceTest {
             doThrow(new IOException(UPDATE_FAILED_MSG))
                     .when(esClient)
                     .update(any(UpdateRequest.class), eq(Map.class));
-            elasticsearchService.updateFilename(DOC_ID, NEW_FILENAME);
+            elasticsearchServiceImp.updateFilename(DOC_ID, NEW_FILENAME);
             verify(esClient).update(any(UpdateRequest.class), eq(Map.class));
         }
     }
@@ -94,7 +94,7 @@ class ElasticsearchServiceTest {
             doReturn(mockResponse)
                     .when(esClient)
                     .delete(any(DeleteRequest.class));
-            elasticsearchService.deleteDocument(DOC_ID);
+            elasticsearchServiceImp.deleteDocument(DOC_ID);
             verify(esClient).delete(any(DeleteRequest.class));
         }
 
@@ -104,7 +104,7 @@ class ElasticsearchServiceTest {
             doThrow(new IOException(DELETE_FAILED_MSG))
                     .when(esClient)
                     .delete(any(DeleteRequest.class));
-            elasticsearchService.deleteDocument(DOC_ID);
+            elasticsearchServiceImp.deleteDocument(DOC_ID);
             verify(esClient).delete(any(DeleteRequest.class));
         }
     }
@@ -116,14 +116,14 @@ class ElasticsearchServiceTest {
         @Test
         @DisplayName("Should return empty list for null query")
         void shouldReturnEmptyListForNullQuery() {
-            List<String> results = elasticsearchService.searchIdsByQuery(null);
+            List<String> results = elasticsearchServiceImp.searchIdsByQuery(null);
             assertThat(results).isEmpty();
         }
 
         @Test
         @DisplayName("Should return empty list for blank query")
         void shouldReturnEmptyListForBlankQuery() {
-            List<String> results = elasticsearchService.searchIdsByQuery("   ");
+            List<String> results = elasticsearchServiceImp.searchIdsByQuery("   ");
             assertThat(results).isEmpty();
         }
 
@@ -145,7 +145,7 @@ class ElasticsearchServiceTest {
             doReturn(mockResponse)
                     .when(esClient)
                     .search(any(Function.class), eq(Map.class));
-            List<String> results = elasticsearchService.searchIdsByQuery(QUERY_TEST);
+            List<String> results = elasticsearchServiceImp.searchIdsByQuery(QUERY_TEST);
             assertThat(results).hasSize(2).containsExactly(DOC_ID_1, DOC_ID_2);
             verify(esClient).search(any(Function.class), eq(Map.class));
         }
@@ -157,7 +157,7 @@ class ElasticsearchServiceTest {
             doThrow(new IOException("Search failed"))
                     .when(esClient)
                     .search(any(Function.class), eq(Map.class));
-            List<String> results = elasticsearchService.searchIdsByQuery(QUERY_TEST);
+            List<String> results = elasticsearchServiceImp.searchIdsByQuery(QUERY_TEST);
             assertThat(results).isEmpty();
             verify(esClient).search(any(Function.class), eq(Map.class));
         }

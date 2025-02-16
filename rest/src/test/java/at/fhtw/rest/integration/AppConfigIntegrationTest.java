@@ -1,7 +1,7 @@
 package at.fhtw.rest.integration;
 
 import at.fhtw.rest.infrastructure.AppConfig;
-import at.fhtw.rest.message.ProcessingEventDispatcher;
+import at.fhtw.rest.message.ProcessingEventDispatcherImp;
 import io.minio.MinioClient;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest(classes = {AppConfig.class, ProcessingEventDispatcher.class})
+@SpringBootTest(classes = {AppConfig.class, ProcessingEventDispatcherImp.class})
 public class AppConfigIntegrationTest {
 
     @MockBean
@@ -42,7 +42,7 @@ public class AppConfigIntegrationTest {
     private Binding resultBinding;
 
     @Autowired
-    private ProcessingEventDispatcher dispatcher;
+    private ProcessingEventDispatcherImp dispatcher;
 
 
     @Test
@@ -110,7 +110,7 @@ public class AppConfigIntegrationTest {
     }
 
     @Test
-    @DisplayName("ProcessingEventDispatcher default values are correctly injected")
+    @DisplayName("ProcessingEventDispatcherImp default values are correctly injected")
     public void testProcessingEventDispatcherDefaults() {
         assertThat(dispatcher).isNotNull();
         assertThat(dispatcher.getExchangeName())

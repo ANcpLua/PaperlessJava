@@ -1,6 +1,6 @@
 package at.fhtw.rest.api;
 
-import at.fhtw.rest.core.imp.IDocumentService;
+import at.fhtw.rest.core.DocumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DocumentController {
 
-    private final IDocumentService documentService;
+    private final DocumentService documentService;
 
     @Operation(summary = "Upload a new document")
     @PostMapping

@@ -1,6 +1,6 @@
 package at.fhtw.services.unit;
 
-import at.fhtw.services.MinioStorageService;
+import at.fhtw.services.MinioStorageServiceImp;
 import io.minio.GetObjectArgs;
 import io.minio.GetObjectResponse;
 import io.minio.MinioClient;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-class MinioStorageServiceTest  {
+class MinioStorageServiceImpTest {
 
     private MinioClient minioClient;
-    private MinioStorageService storageService;
+    private MinioStorageServiceImp storageService;
     private File downloadedFile;
 
     static class DummyGetObjectResponse extends GetObjectResponse {
@@ -45,7 +45,7 @@ class MinioStorageServiceTest  {
     @BeforeEach
     void setUp() {
         minioClient = org.mockito.Mockito.mock(MinioClient.class);
-        storageService = new MinioStorageService(minioClient);
+        storageService = new MinioStorageServiceImp(minioClient);
     }
 
     @AfterEach

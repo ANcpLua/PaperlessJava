@@ -1,6 +1,6 @@
 package at.fhtw.services.integration;
 
-import at.fhtw.services.MessageBroker;
+import at.fhtw.services.MessageBrokerImp;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -26,11 +26,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(IntegrationTestBase.SharedContainersExtension.class)
-@DisplayName("MessageBroker Integration Tests")
-class MessageBrokerIntegrationTest extends IntegrationTestBase {
+@DisplayName("MessageBrokerImp Integration Tests")
+class MessageBrokerImpIntegrationTest extends IntegrationTestBase {
 
     private RabbitTemplate rabbitTemplate;
-    private MessageBroker messageBroker;
+    private MessageBrokerImp messageBrokerImp;
     private ObjectMapper objectMapper;
     private CachingConnectionFactory connectionFactory;
 
@@ -46,7 +46,7 @@ class MessageBrokerIntegrationTest extends IntegrationTestBase {
         rabbitTemplate = new RabbitTemplate(connectionFactory);
         new RabbitAdmin(connectionFactory).declareQueue(new Queue(QUEUE_NAME, false));
 
-        messageBroker = new MessageBroker(rabbitTemplate, QUEUE_NAME, new ObjectMapper());
+        messageBrokerImp = new MessageBrokerImp(rabbitTemplate, QUEUE_NAME, new ObjectMapper());
         objectMapper = new ObjectMapper();
     }
 
@@ -63,7 +63,7 @@ class MessageBrokerIntegrationTest extends IntegrationTestBase {
     @Test
     @DisplayName("Given a message broker, when sending a message to the result queue, then the message should be received")
     void testSendToResultQueue() throws Exception {
-        messageBroker.sendToResultQueue(TEST_DOCUMENT_ID, TEST_OCR_TEXT);
+        messageBrokerImp.sendToResultQueue(TEST_DOCUMENT_ID, TEST_OCR_TEXT);
         String received = (String) rabbitTemplate.receiveAndConvert(QUEUE_NAME, RECEIVE_TIMEOUT);
         assertThat(received).isNotNull();
 
@@ -82,7 +82,7 @@ class MessageBrokerIntegrationTest extends IntegrationTestBase {
             for (int i = 0; i < CONCURRENT_MESSAGE_COUNT; i++) {
                 final String id = String.valueOf(i);
                 executorService.submit(() -> {
-                    messageBroker.sendToResultQueue(id, "text" + id);
+                    messageBrokerImp.sendToResultQueue(id, "text" + id);
                     latch.countDown();
                 });
             }
@@ -108,7 +108,7 @@ class MessageBrokerIntegrationTest extends IntegrationTestBase {
     @DisplayName("Given a message broker, when sending a large message, then the message should be received")
     void testLargeMessage() throws Exception {
         String largeText = "A".repeat(100_000);
-        messageBroker.sendToResultQueue(TEST_DOCUMENT_ID, largeText);
+        messageBrokerImp.sendToResultQueue(TEST_DOCUMENT_ID, largeText);
         String received = (String) rabbitTemplate.receiveAndConvert(QUEUE_NAME, RECEIVE_TIMEOUT);
         assertThat(received).isNotNull();
 

@@ -1,7 +1,7 @@
 package at.fhtw.rest.unit;
 
+import at.fhtw.rest.persistence.MinioStorageServiceImp;
 import at.fhtw.rest.persistence.MinioStorageService;
-import at.fhtw.rest.persistence.imp.IMinioStorageService;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
 import io.minio.PutObjectArgs;
@@ -33,16 +33,16 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
-class MinioStorageServiceTest {
+class MinioStorageServiceImpTest {
 
     @Mock
     private MinioClient minioClient;
 
-    private IMinioStorageService minioStorageService;
+    private MinioStorageService minioStorageService;
 
     @BeforeEach
     void setUp() {
-        minioStorageService = new MinioStorageService(minioClient, "documents");
+        minioStorageService = new MinioStorageServiceImp(minioClient, "documents");
     }
 
     @Nested

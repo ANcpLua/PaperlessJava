@@ -1,6 +1,6 @@
 package at.fhtw.rest.integration;
 
-import at.fhtw.rest.core.ElasticsearchService;
+import at.fhtw.rest.core.ElasticsearchServiceImp;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
@@ -31,9 +31,9 @@ import static org.hamcrest.Matchers.notNullValue;
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Elasticsearch Service Integration Tests")
-class ElasticsearchServiceIntegrationTest {
+class ElasticsearchServiceImpIntegrationTest {
 
-    private static final Logger LOGGER = Logger.getLogger(ElasticsearchServiceIntegrationTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ElasticsearchServiceImpIntegrationTest.class.getName());
     private static final String ES_DOCKER_VERSION = "8.17.0";
     private static final String ES_DOCKER_IMAGE = "docker.elastic.co/elasticsearch/elasticsearch:" + ES_DOCKER_VERSION;
     private static final String ES_INDEX_NAME = "documents";
@@ -46,7 +46,7 @@ class ElasticsearchServiceIntegrationTest {
     private static final String TEST_OCR_CONTENT = "This is a test PDF document for OCR processing";
 
     private ElasticsearchClient esClient;
-    private ElasticsearchService elasticsearchService;
+    private ElasticsearchServiceImp elasticsearchServiceImp;
     private RestClient restClient;
 
     @Container
@@ -62,7 +62,7 @@ class ElasticsearchServiceIntegrationTest {
         restClient = RestClient.builder(HttpHost.create(elasticsearchUrl)).build();
         RestClientTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
         esClient = new ElasticsearchClient(transport);
-        elasticsearchService = new ElasticsearchService(esClient, ES_INDEX_NAME);
+        elasticsearchServiceImp = new ElasticsearchServiceImp(esClient, ES_INDEX_NAME);
     }
 
     @BeforeEach
@@ -121,7 +121,7 @@ class ElasticsearchServiceIntegrationTest {
         void shouldUpdateFilename() throws IOException {
             Map<String, Object> document = createTestDocument();
             indexTestDocument(document);
-            elasticsearchService.updateFilename(TEST_DOCUMENT_ID, TEST_UPDATED_FILENAME);
+            elasticsearchServiceImp.updateFilename(TEST_DOCUMENT_ID, TEST_UPDATED_FILENAME);
             var response = esClient.get(g -> g.index(ES_INDEX_NAME).id(TEST_DOCUMENT_ID), Map.class);
             assertThat("Document should be found after update", response.found(), is(true));
             var source = response.source();
@@ -134,7 +134,7 @@ class ElasticsearchServiceIntegrationTest {
         void shouldDeleteDocument() throws IOException {
             Map<String, Object> document = createTestDocument();
             indexTestDocument(document);
-            elasticsearchService.deleteDocument(TEST_DOCUMENT_ID);
+            elasticsearchServiceImp.deleteDocument(TEST_DOCUMENT_ID);
             var response = esClient.get(g -> g.index(ES_INDEX_NAME).id(TEST_DOCUMENT_ID), Map.class);
             assertThat("Document should be deleted", response.found(), is(false));
         }
@@ -144,7 +144,7 @@ class ElasticsearchServiceIntegrationTest {
         void shouldFindDocumentSuccessfully() throws IOException {
             Map<String, Object> document = createTestDocument();
             indexTestDocument(document);
-            List<String> results = elasticsearchService.searchIdsByQuery("PDF");
+            List<String> results = elasticsearchServiceImp.searchIdsByQuery("PDF");
             assertThat("Should find one document", results.size(), is(1));
             assertThat("Should find the test document", results.get(0), is(equalTo(TEST_DOCUMENT_ID)));
         }
@@ -158,7 +158,7 @@ class ElasticsearchServiceIntegrationTest {
         @DisplayName("Should handle empty and null queries")
         void shouldHandleEmptyAndNullQueries() {
             assertThat("Null query should return empty results",
-                    elasticsearchService.searchIdsByQuery(null), is(empty()));
+                    elasticsearchServiceImp.searchIdsByQuery(null), is(empty()));
         }
 
         @Test
@@ -168,7 +168,7 @@ class ElasticsearchServiceIntegrationTest {
             if (indexExists) {
                 esClient.indices().delete(d -> d.index(ES_INDEX_NAME));
             }
-            List<String> results = elasticsearchService.searchIdsByQuery("test");
+            List<String> results = elasticsearchServiceImp.searchIdsByQuery("test");
             assertThat("Search on non-existent index should return empty results", results, is(empty()));
         }
     }

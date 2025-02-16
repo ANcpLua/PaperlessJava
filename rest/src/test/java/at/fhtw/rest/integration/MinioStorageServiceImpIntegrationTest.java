@@ -1,6 +1,6 @@
 package at.fhtw.rest.integration;
 
-import at.fhtw.rest.persistence.MinioStorageService;
+import at.fhtw.rest.persistence.MinioStorageServiceImp;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("MinIO Storage Service Integration Tests")
-public class MinioStorageServiceIntegrationTest {
+public class MinioStorageServiceImpIntegrationTest {
 
     private static final Network SHARED_NETWORK = Network.newNetwork();
     private static final String MINIO_VERSION = "RELEASE.2023-09-04T19-57-37Z";
@@ -39,7 +39,7 @@ public class MinioStorageServiceIntegrationTest {
             .withEnv("MINIO_ROOT_USER", "paperless")
             .withEnv("MINIO_ROOT_PASSWORD", "paperless");
 
-    private MinioStorageService minioStorageService;
+    private MinioStorageServiceImp minioStorageServiceImp;
     private MinioClient minioClient;
 
     @BeforeAll
@@ -52,7 +52,7 @@ public class MinioStorageServiceIntegrationTest {
                 .endpoint(endpoint)
                 .credentials("paperless", "paperless")
                 .build();
-        minioStorageService = new MinioStorageService(minioClient, "documents");
+        minioStorageServiceImp = new MinioStorageServiceImp(minioClient, "documents");
         try {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket("documents").build());
         } catch (Exception e) {
@@ -73,8 +73,8 @@ public class MinioStorageServiceIntegrationTest {
     @DisplayName("Store and Retrieve File Successfully")
     void testStoreAndLoadFile() throws IOException {
         MockMultipartFile file = createTestFile("test-file.txt", "Hello, MinIO Integration Test!");
-        minioStorageService.storeFile("test-file.txt", file);
-        Optional<byte[]> loadedFileBytes = minioStorageService.loadFile("test-file.txt");
+        minioStorageServiceImp.storeFile("test-file.txt", file);
+        Optional<byte[]> loadedFileBytes = minioStorageServiceImp.loadFile("test-file.txt");
         assertThat(loadedFileBytes).isPresent();
         String loadedContent = new String(loadedFileBytes.get(), StandardCharsets.UTF_8);
         assertThat(loadedContent).isEqualTo("Hello, MinIO Integration Test!");
@@ -85,8 +85,8 @@ public class MinioStorageServiceIntegrationTest {
     void testStoreAndLoadPdfFile() throws IOException {
         byte[] pdfBytes = "PDF file content".getBytes(StandardCharsets.UTF_8);
         MockMultipartFile pdfFile = new MockMultipartFile("file", "test-file.pdf", "application/pdf", pdfBytes);
-        minioStorageService.storeFile("test-file.pdf", pdfFile);
-        Optional<byte[]> loadedFileBytes = minioStorageService.loadFile("test-file.pdf");
+        minioStorageServiceImp.storeFile("test-file.pdf", pdfFile);
+        Optional<byte[]> loadedFileBytes = minioStorageServiceImp.loadFile("test-file.pdf");
         assertThat(loadedFileBytes).isPresent();
         assertThat(loadedFileBytes.get()).isEqualTo(pdfBytes);
     }
@@ -95,10 +95,10 @@ public class MinioStorageServiceIntegrationTest {
     @DisplayName("Delete File Successfully")
     void testDeleteFile() throws IOException {
         MockMultipartFile file = createTestFile("test-delete.txt", "File to be deleted");
-        minioStorageService.storeFile("test-delete.txt", file);
-        assertThat(minioStorageService.loadFile("test-delete.txt")).isPresent();
-        minioStorageService.deleteFile("test-delete.txt");
-        assertThat(minioStorageService.loadFile("test-delete.txt")).isEmpty();
+        minioStorageServiceImp.storeFile("test-delete.txt", file);
+        assertThat(minioStorageServiceImp.loadFile("test-delete.txt")).isPresent();
+        minioStorageServiceImp.deleteFile("test-delete.txt");
+        assertThat(minioStorageServiceImp.loadFile("test-delete.txt")).isEmpty();
     }
 
     private static class FailingMultipartFile implements MultipartFile {
@@ -143,7 +143,7 @@ public class MinioStorageServiceIntegrationTest {
     @DisplayName("Handle Storage Failure Gracefully")
     void testStoreFileFailure() {
         MultipartFile failingFile = new FailingMultipartFile();
-        assertThatThrownBy(() -> minioStorageService.storeFile("failing.txt", failingFile))
+        assertThatThrownBy(() -> minioStorageServiceImp.storeFile("failing.txt", failingFile))
                 .isInstanceOf(IOException.class)
                 .hasMessageContaining("Failed to store file");
     }
@@ -155,7 +155,7 @@ public class MinioStorageServiceIntegrationTest {
                 .endpoint("http://127.0.0.1:12345")
                 .credentials("paperless", "paperless")
                 .build();
-        MinioStorageService brokenStorageService = new MinioStorageService(brokenClient, "documents");
+        MinioStorageServiceImp brokenStorageService = new MinioStorageServiceImp(brokenClient, "documents");
         Optional<byte[]> result = brokenStorageService.loadFile("any-key");
         assertThat(result).isEmpty();
     }
@@ -164,7 +164,7 @@ public class MinioStorageServiceIntegrationTest {
     @DisplayName("Dynamically Creates Bucket If Not Exists")
     void testDynamicBucketCreation() throws Exception {
         String dynamicBucketName = "documents-dynamic";
-        MinioStorageService dynamicService = new MinioStorageService(minioClient, dynamicBucketName);
+        MinioStorageServiceImp dynamicService = new MinioStorageServiceImp(minioClient, dynamicBucketName);
         boolean exists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(dynamicBucketName).build());
         assertThat(exists).isFalse();
         MockMultipartFile file = createTestFile("dynamic-test.txt", "Test dynamic bucket creation");
