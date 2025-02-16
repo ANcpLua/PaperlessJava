@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: paperless-app
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:paperless}
+    password: ${SPRING_RABBITMQ_PASSWORD:paperless}
+  elasticsearch:
+    uris: ${SPRING_ELASTICSEARCH_URIS:http://elasticsearch:9200}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/paperless_DB}
+    username: ${SPRING_DATASOURCE_USERNAME:paperless}
+    password: ${SPRING_DATASOURCE_PASSWORD:paperless}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.postgresql.Driver}
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:docker}
+
+server:
+  port: 8081
+
+elasticsearch:
+  index-name: ${ELASTICSEARCH_INDEX_NAME:documents}
+
+minio:
+  endpoint: ${MINIO_URL:http://minio:9000}
+  access-key: ${MINIO_ACCESS_KEY:paperless}
+  secret-key: ${MINIO_SECRET_KEY:paperless}
+  bucket-name: documents
+
+rabbitmq:
+  queue:
+    processing: ${RABBITMQ_PROCESSING_QUEUE:document_processing_queue}
+    result: ${RABBITMQ_RESULT_QUEUE:document_result_queue}
+  routing-key:
+    processing: ${RABBITMQ_ROUTING_KEY_PROCESSING:document_routing_key}
+    result: ${RABBITMQ_ROUTING_KEY_RESULT:document_result_key}
+
+logging:
+  level:
+    org.springframework: INFO
+    root: INFO

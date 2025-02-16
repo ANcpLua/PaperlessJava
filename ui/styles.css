@@ -1,0 +1,115 @@
+.upload-area {
+    border: 2px dashed #cbd5e0;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    margin-bottom: 1rem;
+    color: #6c757d;
+}
+
+.upload-area:hover {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.upload-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+#progress-bar {
+    width: 0;
+    background-color: #0d6efd;
+    transition: width 0.4s ease;
+}
+
+.table-container {
+    margin-top: 2rem;
+}
+
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(211, 211, 211, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 0.3rem solid #ccc;
+    border-top: 0.3rem solid #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 0.25rem;
+    display: none;
+    z-index: 9999;
+    min-width: 200px;
+}
+
+.toast-success {
+    background-color: #708d80;
+    color: #0f5132;
+}
+
+.toast-error {
+    background-color: #cda4a8;
+    color: #842029;
+}
+
+.status-icon {
+    font-size: 1.3rem;
+    display: inline-block;
+    width: 1.3rem;
+    text-align: center;
+    line-height: 1.3rem;
+}
+
+.status-complete {
+    color: #198754;
+}
+
+.status-pending {
+    color: #ffc107;
+}
+
+#ocrText {
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.modal-dialog {
+    max-width: 800px;
+}
+
+.modal-body {
+    max-height: 80vh;
+    overflow-y: auto;
+}

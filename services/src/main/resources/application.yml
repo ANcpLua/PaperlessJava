@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: services
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:paperless}
+    password: ${SPRING_RABBITMQ_PASSWORD:paperless}
+  elasticsearch:
+    uris: ${SPRING_ELASTICSEARCH_URIS:http://elasticsearch:9200}
+  datasource:
+    url: jdbc:postgresql://postgres:5432/paperless_DB
+    username: ${SPRING_DATASOURCE_USERNAME:paperless}
+    password: ${SPRING_DATASOURCE_PASSWORD:paperless}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8082
+
+minio:
+  url: ${MINIO_URL:http://minio:9000}
+  access-key: ${MINIO_ACCESS_KEY:paperless}
+  secret-key: ${MINIO_SECRET_KEY:paperless}
+
+rabbitmq:
+  queue:
+    processing: ${RABBITMQ_PROCESSING_QUEUE:document_processing_queue}
+    result: ${RABBITMQ_RESULT_QUEUE:document_result_queue}
+    indexing: ${RABBITMQ_INDEXING_QUEUE:document_indexing_queue}
+  routing-key:
+    processing: ${RABBITMQ_ROUTING_KEY_PROCESSING:document_routing_key}
+    result: ${RABBITMQ_ROUTING_KEY_RESULT:document_result_key}
+    indexing: ${RABBITMQ_ROUTING_KEY_INDEXING:document_indexing_key}
+
+tesseract:
+  data-path: /usr/share/tesseract-ocr/tessdata
+  language: eng
+  dpi: 300
+
+logging:
+  level:
+    org.springframework: INFO
+    root: INFO
