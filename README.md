@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/ANcpLua/PaperlessJava/branch/master/graph/badge.svg?token=1GTYOQ4SVI)](https://app.codecov.io/gh/ANcpLua/PaperlessJava/tree/master)) 
+[![codecov](https://codecov.io/gh/ANcpLua/PaperlessJava/branch/master/graph/badge.svg?token=1GTYOQ4SVI)](https://app.codecov.io/gh/ANcpLua/PaperlessJava/tree/master) 
 [![Test](https://github.com/ANcpLua/PaperlessJava/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/ANcpLua/PaperlessJava/actions/workflows/test.yml)
 
 <p align="left">
