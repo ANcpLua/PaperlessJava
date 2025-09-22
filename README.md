@@ -1,4 +1,4 @@
-If anyone is interested in the updated version https://github.com/ANcpLua/SWEN3.Paperless.RabbitMq/tree/main/SWEN3.Paperless.RabbitMq/GenAI
+My first Java Project that I only wrote so I can compare it to C# - If anyone is interested in the updated version https://github.com/ANcpLua/SWEN3.Paperless.RabbitMq/tree/main/SWEN3.Paperless.RabbitMq/GenAI
 
 [![codecov](https://codecov.io/gh/ANcpLua/PaperlessJava/branch/master/graph/badge.svg?token=3LewrYrlMR)](https://codecov.io/gh/ANcpLua/PaperlessJava)
 [![Test](https://github.com/ANcpLua/PaperlessJava/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/ANcpLua/PaperlessJava/actions/workflows/test.yml)
