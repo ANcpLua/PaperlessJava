@@ -28,7 +28,7 @@
 		<junit.jupiter.version>5.11.4</junit.jupiter.version>
 		<testcontainers.version>1.19.3</testcontainers.version>
 		<okhttp.version>4.10.0</okhttp.version>
-		<aspectj.version>1.9.19</aspectj.version>
+		<aspectj.version>1.9.25</aspectj.version>
 		<rabbitmq.version>3.12-management</rabbitmq.version>
 		<guava.version>31.1-jre</guava.version>
 	</properties>
