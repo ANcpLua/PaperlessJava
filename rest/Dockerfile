@@ -1,4 +1,4 @@
-FROM maven:3.8.4-openjdk-17-slim@sha256:150deb7b386bad685dcf0c781b9b9023a25896087b637c069a50c8019cab86f8 AS builder
+FROM maven:3.8.5-openjdk-17-slim@sha256:502e781d39f0b40fbd02eb23f5b7663618b76ba52034da218c64e92f6c5647be AS builder
 WORKDIR /build
 COPY . .
 RUN mvn clean package -DskipTests -pl rest -am
