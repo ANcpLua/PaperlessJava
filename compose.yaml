@@ -41,7 +41,7 @@ services:
       - paperless-network
 
   postgres:
-    image: postgres:17-alpine
+    image: postgres:17-alpine@sha256:dc17045ccfd343b49600570ea734b9c4991cf1c3f3302e67df51e3b402dd55c4
     container_name: postgres
     ports:
       - "5432:5432"
@@ -55,7 +55,7 @@ services:
       - paperless-network
 
   rabbitmq:
-    image: rabbitmq:3.12-management
+    image: rabbitmq:3.12-management@sha256:c601bbed8c3138c74d13439d1db867c106ec76029c3c9e458c11e18c3de25b2e
     container_name: rabbitmq
     ports:
       - "5672:5672"
@@ -69,7 +69,7 @@ services:
       - paperless-network
 
   minio:
-    image: minio/minio:RELEASE.2025-02-07T23-21-09Z
+    image: minio/minio:RELEASE.2025-02-07T23-21-09Z@sha256:640c22768ed5dbc92eacc14502a1b06a1c708fa60431345c78dfc22917062e93
     container_name: minio
     command: server /data --console-address ":9001"
     ports:
@@ -110,7 +110,7 @@ services:
       - paperless-network
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0@sha256:2f602552550869fb29b6fd5848c5118d3ef3a2e1d5d45802e3ab9088cb2de8e2
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
