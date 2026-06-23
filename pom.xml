@@ -21,7 +21,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<spring-boot.version>3.2.2</spring-boot.version>
 		<minio.version>8.5.12</minio.version>
-		<lombok.version>1.18.32</lombok.version>
+		<lombok.version>1.18.46</lombok.version>
 		<elasticsearch.client.version>8.17.0</elasticsearch.client.version>
 		<tess4j.version>5.4.0</tess4j.version>
 		<android-json.version>0.0.20131108.vaadin1</android-json.version>
